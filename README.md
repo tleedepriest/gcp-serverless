@@ -1,5 +1,14 @@
 # gcp-serverless
 
+## Purpose
+
+Provide a third-party website/application to visualize and explore IBJJF Results
+https://ibjjf.com/events/results
+
+The current results are "locked" into inaccessible PDF formats.
+
+## Pipeline details
+
 A repository for a simple event-triggered pipeline. The steps below describe the basic pipeline.
 
 1. The pipeline kicks off with a properly formatted http request to the initial cloud function. This request is read by a python function that saves a webpage to a bucket with a timestamp. 
