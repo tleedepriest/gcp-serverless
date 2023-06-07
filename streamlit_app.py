@@ -1,6 +1,18 @@
+import json
 import streamlit as st
 import pandas as pd
 import numpy as np
+from google.cloud import storage
+from google.oauth2 import service_account
+
+SCOPES = ['https://www.googleapis.com/auth/devstorage.read_only']
+SERVICE_ACCOUNT_FILE = '/media/sf_VM_shared/bjj-lineage-streamlit-access-key.json'
+# when deploying, copy contents of key file to secrets.toml file and 
+# st.secrets can be accessed as a dictionary that you can pass here.
+# change _file to _info
+
+CREDENTIAL = service_account.Credentials.from_service_account_info(
+        st.secrets["cloud_secrets"], scopes=SCOPES)
 
 FILENAME = "test.csv"
 
@@ -8,13 +20,23 @@ FILENAME = "test.csv"
 DATE_COL = "date"
 DATETIME_COL = "file_path"
 YEAR_COL = "year"
+BUCKET_NAME = "bjj-lineage-ibjjf-events-results-all-parsed-json"
+STORAGE_CLIENT = storage.Client(credentials=CREDENTIAL)
+
 
 @st.cache_data
 def load_data(**kwargs):
-    data = pd.read_csv(FILENAME, **kwargs)
+    rows = []
+    blobs = STORAGE_CLIENT.list_blobs(BUCKET_NAME)
+    for blob in blobs:
+        with blob.open('r') as fh:
+            for line in fh:
+                row = json.loads(line)
+                rows.append(row)
+    data = pd.DataFrame.from_records(rows, **kwargs)
     data[YEAR_COL] = data[DATETIME_COL].str.extract(r'(\d{4})')
-    #lowercase = lambda x: str(x).lower()
-    #data.rename(lowercase, axis='columns', inplace=True)
+    lowercase = lambda x: str(x).lower()
+    data.rename(lowercase, axis='columns', inplace=True)
     return data
 
 st.title("IBJJF Results")
