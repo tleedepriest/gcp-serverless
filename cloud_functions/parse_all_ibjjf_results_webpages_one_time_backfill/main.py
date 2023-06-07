@@ -121,7 +121,7 @@ def main(
     html_blobs = list_blobs(storage_client, bucket_name)
     
     for num, blob in enumerate(html_blobs):
-        
+        print(num)
         file_name = blob.name
         soup = get_soup_from_blob(blob)
 
@@ -247,10 +247,14 @@ def main(
         else:
             pass
 
-    write_to_bucket = storage_client.bucket("bjj-lineage-ibjjf-events-results-all-parsed-json")
-    write_to_bucket.blob(
-        file_name.replace(".html", "") + ".json"
-    ).upload_from_string(data=json.dumps(rows))
+        write_to_bucket = storage_client.bucket("bjj-lineage-ibjjf-events-results-all-parsed-json")
+        blob = write_to_bucket.blob(file_name.replace(".html", "") + ".json")
+        # Biq Query requires new line deliminated file
+        with blob.open("w") as fh:
+            for row in rows:
+                fh.write(json.dumps(row))
+                fh.write("\n")
+    #.upload_from_string(data=json.dumps(rows))
 
         #try:
         #    df = pd.DataFrame.from_dict(division_results)
