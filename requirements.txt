@@ -1,6 +1,4 @@
 beautifulsoup4==4.12.2
-# Editable install with no version control (bjj-lin-cloud-run==1.0)
--e /home/leeone/git_repos/bjj-lin-cloud-run
 blinker==1.6.2
 cachetools==5.3.0
 certifi==2023.5.7
