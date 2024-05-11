@@ -141,9 +141,14 @@ def parse_ibjjf_results_html_to_json_trigger(event, _):
     write_to_bucket = storage_client.bucket(
         write_to_bucket_name
     )
-    write_to_bucket.blob(
+    blob = write_to_bucket.blob(
         file_name.replace(".html", "") + ".json"
-    ).upload_from_string(data=json.dumps(rows))
+    )
+    with blob.open("w") as fh:
+        for row in rows:
+            fh.write(json.dumps(row))
+            fh.write("\n")
+    #.upload_from_string(data=json.dumps(rows))
 
 
 if __name__ == "__main__":

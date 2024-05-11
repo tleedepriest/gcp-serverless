@@ -56,21 +56,24 @@ def get_all_ibjjf_results_webpages(event, context):
             link, event, year = line["link"], line["event"].replace(" ", "_"), line["year"]
             dest_blob_name = f"{event}_{year}.html"
             dest_blob = dest_bucket.blob(dest_blob_name)
-            if not dest_blob.exists():
-                download_file(link, dest_blob)
+            if int(float(year)) <= 2022:
+                pass
+            else:
+                if not dest_blob.exists():
+                    print(f"....downloading from {link}")
+                    download_file(link, dest_blob)
             # only want to check any new files, so this value should be updated yearly...
             # need to parse new files in case they post a partial result
             # while running the pipeline.
-            elif int(float(year)) >= 2023 and dest_blob.exists():
-                blob_string, timestamp = read_file_get_timestamp(dest_blob)
-                if timestamp is not None:
-                    dest_blob_name = f'{dest_blob_name.replace(".html", "")}_{timestamp}.html'
-                    dest_blob = dest_bucket.blob(dest_blob_name)
-                    if not dest_blob.exists():
-                        dest_blob.upload_from_string(data=blob_string)
-                    else:
-                        print(f"The file already exists")
-            else:
-                print(f"The file already exists!")
-    
+            #elif int(float(year)) >= 2023 and dest_blob.exists():
+            #    blob_string, timestamp = read_file_get_timestamp(dest_blob)
+            #    if timestamp is not None:
+            #        dest_blob_name = f'{dest_blob_name.replace(".html", "")}_{timestamp}.html'
+            #        dest_blob = dest_bucket.blob(dest_blob_name)
+            #        if not dest_blob.exists():
+            #            dest_blob.upload_from_string(data=blob_string)
+            #        else:
+            #            print(f"The file already exists")
+
+
     os.remove(tmp_dest)
